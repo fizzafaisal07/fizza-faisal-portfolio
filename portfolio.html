@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Fizza Faisal | Full-Stack Developer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'dark-bg': '#0a0a0f',
+            'darker': '#050508',
+            'neon-purple': '#c084fc',
+            'deep-purple': '#a855f7',
+            'light-text': '#f1f5f9',
+            'muted': '#94a3b8',
+          },
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif'],
+            'display': ['Space Grotesk', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 5s ease-in-out infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            glowPulse: {
+              '0%, 100%': { textShadow: '0 0 5px #a855f7, 0 0 10px #c084fc' },
+              '50%': { textShadow: '0 0 20px #c084fc, 0 0 30px #a855f7' },
+            },
+          },
+          backgroundImage: {
+            'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E\")",
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #0a0a0f; overflow-x: hidden; scroll-behavior: smooth; }
+    
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    } 
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-in-out forwards;
+    }
+    
+    .glass-card {
+      background: rgba(15, 15, 25, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+    .skill-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .skill-btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(192,132,252,0.1));
+      border-color: #c084fc;
+    }
+    .skill-progress-fill {
+      transition: width 1s cubic-bezier(0.22, 0.97, 0.36, 1);
+    }
+    
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #0a0a0f; }
+    ::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
+  </style>
+</head>
+<body class="bg-dark-bg text-light-text font-sans">
+
+<div id="root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+  const { useState, useEffect, useRef } = React;
+
+  const gradientText = "bg-gradient-to-r from-pink-400 via-purple-600 to-indigo-800 bg-clip-text text-transparent";
+
+  const FadeUp = ({ children, delay = 0 }) => {
+    const [visible, setVisible] = useState(false);
+    const ref = useRef();
+    useEffect(() => {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }
+      }, { threshold: 0.1 });
+      if (ref.current) observer.observe(ref.current);
+      return () => observer.disconnect();
+    }, []);
+    return (
+      <div ref={ref} className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: `${delay}ms` }}>
+        {children}
+      </div>
+    );
+  };
+
+  const Navbar = () => {
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    useEffect(() => {
+      const handleScroll = () => setScrolled(window.scrollY > 30);
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+    const navItems = ['Home', 'About', 'Skills', 'Projects', 'Contact'];
+    return (
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-darker/90 backdrop-blur-xl border-b border-deep-purple/30 shadow-2xl' : 'bg-transparent'}`}>
+        <div className="container mx-auto px-6 md:px-10 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <i className="fas fa-code text-white text-sm"></i>
+            </div>
+            <span className="text-xl font-display font-bold tracking-tight"><span className="text-white">Fizza</span><span className="text-pink-400">.</span></span>
+          </div>
+          <ul className="hidden md:flex gap-8">
+            {navItems.map(item => <li key={item}><a href={`#${item.toLowerCase()}`} className="hover:text-pink-400 transition duration-300 text-muted text-sm font-medium">{item}</a></li>)}
+          </ul>
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-2xl text-pink-400"><i className={`fas ${mobileOpen ? 'fa-times' : 'fa-bars'}`}></i></button>
+        </div>
+        {mobileOpen && (
+          <div className="md:hidden glass-card mx-4 rounded-2xl p-5 mt-2">
+            {navItems.map(item => <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileOpen(false)} className="block py-2 text-muted hover:text-pink-400 transition">{item}</a>)}
+          </div>
+        )}
+      </header>
+    );
+  };
+
+  const Hero = () => (
+    <section id="home" className="relative min-h-screen flex items-center overflow-hidden pt-20">
+      <div className="absolute inset-0 bg-noise opacity-20"></div>
+      <div className="absolute top-20 left-10 w-72 h-72 bg-pink-500/20 rounded-full blur-[100px]"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/15 rounded-full blur-[120px]"></div>
+      
+      <div className="container mx-auto px-6 md:px-10 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+          <FadeUp delay={100}>
+            <div className="flex-1 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-400/30 rounded-full px-4 py-1.5 text-pink-300 text-sm font-semibold backdrop-blur-sm mx-auto lg:mx-0">
+                <i className="fas fa-terminal text-xs"></i> Software Engineer
+              </div>
+              <h2 className="text-5xl md:text-5xl lg:text-7xl font-display font-extrabold leading-tight">
+                Hi, I'm{" "}
+                <span className="bg-gradient-to-r from-pink-400 via-purple-600 to-indigo-800 bg-clip-text text-transparent">
+                  Fizza Faisal
+                </span>
+              </h2>
+              <p className="text-muted text-lg max-w-xl mx-auto lg:mx-0">
+                Full-stack Software Engineer with expertise in modern web technologies, 
+                backend systems, and AI integration. Passionate about clean code and scalable architecture.
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
+                <a href="#projects" className="px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold shadow-lg hover:shadow-pink-500/50 transition-all hover:scale-105 flex items-center gap-2 group">
+                  ✨ Explore Work <i className="fas fa-arrow-right text-xs group-hover:translate-x-1 transition"></i>
+                </a>
+                <a href="#contact" className="px-6 py-3 rounded-full border border-pink-400 text-pink-400 hover:bg-pink-500/10 transition-all hover:scale-105 font-medium">
+                  Contact Me <i className="fas fa-paper-plane ml-1 text-xs"></i>
+                </a>
+              </div>
+              <div className="flex gap-6 justify-center lg:justify-start pt-6">
+                <a href="https://github.com/FizzaFaisal07" target="_blank" className="text-muted hover:text-pink-400 transition text-2xl"><i className="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/fizza-faisal-a94182370/" target="_blank" className="text-muted hover:text-pink-400 transition text-2xl"><i className="fab fa-linkedin"></i></a>
+                <a href="https://www.instagram.com/fizaayy_.018/" target="_blank" className="text-muted  hover:text-pink-400 transition text-2xl"><i className="fab fa-instagram"></i></a>
+              </div>
+            </div>
+          </FadeUp>
+          
+          <FadeUp delay={250}>
+            <div className="flex-1 flex justify-center lg:justify-end lg:ml-4">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 to-purple-600 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-all duration-500"></div>
+                <img 
+                  src="img/hero.jpeg" 
+                  alt="Fizza Faisal" 
+                  className="relative w-80 h-80 md:w-96 md:h-96 rounded-full object-cover object-[center_35%] border-3 border-pink-400/50 shadow-2xl animate-float cursor-pointer hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+          </FadeUp>
+        </div>
+      </div>
+    </section>
+  );
+
+  const About = () => (
+    <section id="about" className="py-24 relative">
+      <div className="container mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="text-center mb-12 px-4 sm:px-0">
+  <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-pink-400 via-purple-600 to-indigo-800 bg-clip-text text-transparent pb-2 leading-tight">
+    Building The Future
+  </h2>
+  <div className="w-20 h-1 bg-gradient-to-r from-pink-500 to-purple-600 mx-auto mt-2 rounded-full"></div>
+</div>
+        </FadeUp>
+        
+        <div className="flex flex-col lg:flex-row gap-12 items-center">
+          <FadeUp delay={100}>
+            <div className="flex-1 space-y-5 text-center lg:text-left">
+              <h3 className="text-3xl font-display font-bold bg-gradient-to-r from-pink-400 via-purple-500 to-purple-700 bg-clip-text text-transparent">
+                Code. Deploy. Innovate.
+              </h3>
+              <p className="text-muted leading-relaxed">
+                I'm a 3rd year Software Engineering student at <span className="text-pink-400">UET Lahore</span>, specializing in modern full-stack development.
+              </p>
+              <p className="text-muted leading-relaxed">
+                My work spans from crafting interactive frontends with React & Tailwind to building scalable backends using FastAPI and Django. I thrive on turning complex problems into elegant digital solutions.
+              </p>
+              <p className="text-muted leading-relaxed">
+                Passionate about open-source and continuous growth — I regularly contribute to community projects and thrive on collaborative innovation.
+              </p>
+              <a 
+                href="fizza_faisal_CV.pdf" 
+                download="Fizza_Faisal_CV.pdf"
+                className="inline-flex items-center gap-2 text-pink-400 border border-pink-500/40 px-6 py-2.5 rounded-full hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-600 hover:text-white transition-all"
+              >
+                <i className="fas fa-download"></i> Download Resume
+              </a>
+            </div>
+          </FadeUp>
+          
+          <FadeUp delay={150}>
+            <div className="flex-1 flex justify-center">
+              <div className="relative w-80 h-85 md:w-96 md:h-[420px] rounded-2xl overflow-hidden shadow-2xl border border-pink-400/30 hover:border-pink-400/60 transition-all group mr-0 lg:mr-8">
+                <img 
+                  src="img/about.avif" 
+                  alt="Coding workspace" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent"></div>
+              </div>
+            </div>
+          </FadeUp>
+        </div>
+      </div>
+    </section>
+  );
+
+  const Skills = () => {
+    const [progressValues, setProgressValues] = useState({});
+    const [openCategories, setOpenCategories] = useState({
+      " Programming Languages": false,
+      " Frontend Development": false,
+      " Backend & APIs": false,
+      " Databases": false,
+      " Tools & Security": false
+    });
+    const sectionRef = useRef(null);
+    
+    const toggleCategory = (categoryName) => {
+      setOpenCategories(prev => ({
+        ...prev,
+        [categoryName]: !prev[categoryName]
+      }));
+    };
+    
+    const skillCategories = [
+      {
+        name: " Programming Languages",
+        skills: [
+          { name: "Python", level: 86, icon: "fab fa-python" },
+          { name: "C++ OOP/DSA", level: 88, icon: "fas fa-code" },
+          { name: "JavaScript", level: 85, icon: "fab fa-js" },
+          { name: "C# .NET", level: 75, icon: "fab fa-microsoft" },
+        ]
+      },
+      {
+        name: " Frontend Development",
+        skills: [
+          { name: "HTML5", level: 90, icon: "fab fa-html5" },
+          { name: "CSS3", level: 88, icon: "fab fa-css3-alt" },
+          { name: "Tailwind CSS", level: 85, icon: "fab fa-css3-alt" },
+          { name: "React.js", level: 87, icon: "fab fa-react" },
+        ]
+      },
+      {
+        name: " Backend & APIs",
+        skills: [
+          { name: "Django", level: 82, icon: "fab fa-python" },
+          { name: "FastAPI", level: 80, icon: "fas fa-bolt" },
+          { name: ".NET Framework", level: 72, icon: "fab fa-microsoft" },
+        ]
+      },
+      {
+        name: " Databases",
+        skills: [
+          { name: "MySQL", level: 84, icon: "fas fa-database" },
+          { name: "SQL Server", level: 84, icon: "fas fa-database" },
+        ]
+      },
+      {
+        name: " Tools & Security",
+        skills: [
+          { name: "Git & GitHub", level: 88, icon: "fab fa-git-alt" },
+          { name: "Kali Linux", level: 75, icon: "fab fa-linux" },
+        ]
+      }
+    ];
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          const allProgress = {};
+          skillCategories.forEach(category => {
+            category.skills.forEach(skill => {
+              allProgress[skill.name] = skill.level;
+            });
+          });
+          setProgressValues(allProgress);
+          observer.disconnect();
+        }
+      }, { threshold: 0.3 });
+      if (sectionRef.current) observer.observe(sectionRef.current);
+      return () => observer.disconnect();
+    }, []);
+
+    return (
+      <section id="skills" ref={sectionRef} className="py-24 bg-darker/50 border-y border-purple-500/10">
+        <div className="container mx-auto px-6 md:px-10">
+          <FadeUp>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-pink-400 via-purple-600 to-indigo-800 bg-clip-text text-transparent">
+                Skills & Expertise
+              </h2>
+              <p className="text-muted mt-3">Explore my skills</p>
+              <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-purple-600 mx-auto mt-4 rounded-full"></div>
+            </div>
+          </FadeUp>
+          
+          <div className="space-y-4">
+            {skillCategories.map((category, catIdx) => (
+              <FadeUp key={catIdx} delay={catIdx * 80}>
+                <div className="glass-card rounded-xl overflow-hidden border border-purple-500/20 hover:border-pink-400/40 transition-all">
+                  <button
+                    onClick={() => toggleCategory(category.name)}
+                    className="w-full flex items-center justify-between p-4 hover:bg-pink-500/5 transition-all group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`transform transition-transform duration-300 ${openCategories[category.name] ? 'rotate-90' : 'rotate-0'}`}>
+                        <i className="fas fa-chevron-right text-pink-400 text-sm"></i>
+                      </div>
+                      <h3 className="text-lg font-display font-semibold text-pink-400 group-hover:text-pink-300 transition">
+                        {category.name}
+                      </h3>
+                    </div>
+                    <div className="text-xs text-muted">
+                      {category.skills.length} skills
+                    </div>
+                  </button>
+                  
+                  {openCategories[category.name] && (
+                    <div className="p-4 pt-0 border-t border-purple-500/20">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                        {category.skills.map((skill, idx) => (
+                          <div key={idx} className="rounded-lg p-3 hover:bg-pink-500/5 transition-all">
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-7 h-7 rounded-lg bg-pink-500/15 flex items-center justify-center">
+                                  <i className={`${skill.icon} text-pink-400 text-xs`}></i>
+                                </div>
+                                <span className="font-medium text-light-text text-sm">{skill.name}</span>
+                              </div>
+                              <span className="text-xs text-pink-400 font-mono font-bold">{progressValues[skill.name] || 0}%</span>
+                            </div>
+                            <div className="w-full bg-white/10 rounded-full h-1 overflow-hidden">
+                              <div 
+                                className="h-full rounded-full bg-gradient-to-r from-pink-500 to-purple-600 skill-progress-fill" 
+                                style={{ width: `${progressValues[skill.name] || 0}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  const Projects = () => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(true);
+
+    const projectsData = [
+      { title: "SwiftX Logistics Courier Engine", description: "C++ DSA-based courier management system with route optimization.", tech: ["C++", "DSA", "File Handling"], link: "https://github.com/FizzaFaisal07/SwiftEx-Intelligent-Courier-Logistics-Engine.git", github: "https://github.com/FizzaFaisal07/SwiftEx-Intelligent-Courier-Logistics-Engine.git", img: "img/swiftx.png" },
+      { title: "Online Voting System", description: "Secure OOP-based system with admin/user login and file handling.", tech: ["C++", "OOP", "File I/O"], link: "https://github.com/FizzaFaisal07/OnlineVotingSystem.git", github: "https://github.com/FizzaFaisal07/OnlineVotingSystem.git", img: "img/voting.png" },
+      { title: "Finovia Bank Management System", description: "Full-stack banking app with Django backend and Tailwind frontend.", tech: ["Django", "Tailwind", "JavaScript"], link: "#", github: "https://github.com/FizzaFaisal07", img: "img/finovia.png" },
+      { title: "Car Rental Website", description: "A Car rental platform with Interactive Frontend.", tech: ["HTML", "CSS", "JavaScript"], link: "https://fizzafaisal07.github.io/Car-Rental-Management-system/", github: "https://github.com/FizzaFaisal07/Car-Rental-Management-system.git", img: "img/car.png" },
+      { title: "Secure Chat Application", description: "Real-time encrypted chat using Python socket programming.", tech: ["Python", "Socket", "Cryptography"], link: "https://github.com/FizzaFaisal07/secure-chat-application.git", github: "https://github.com/FizzaFaisal07/secure-chat-application.git", img: "img/chat.png" },
+      { title: "Cinema Management Website", description: "Movie booking, seat selection, SQL Server backend with admin panel.", tech: ["HTML/CSS", "JavaScript", "SQL Server"], link: "https://fizzafaisal07.github.io/Cinema-Website/", github: "https://github.com/FizzaFaisal07/Cinema-Website.git", img: "img/cinema.png" },
+      { title: "Grocery Shop Management System", description: "C++ billing system with admin/user roles and file handling.", tech: ["C++", "File Handling", "Structures"], link: "https://github.com/FizzaFaisal07/Grocery-Shop-Mnagement-system.git", github: "https://github.com/FizzaFaisal07/Grocery-Shop-Mnagement-system.git", img: "img/grocery.jpeg" },
+      { title: "AI Assistant (Jarvis)", description: "Python-powered virtual assistant with voice recognition.", tech: ["Python", "AI", "Voice Recognition"], link: "https://github.com/FizzaFaisal07/Jarvis-AI.git", github: "https://github.com/FizzaFaisal07/Jarvis-AI.git", img: "img/jarvis.jpg" },
+      { title: "Luxury Jewels E‑Commerce", description: "E-commerce platform with cart, product filtering, and Stripe.", tech: ["HTML", "CSS", "Js"], link: "https://fizzafaisal07.github.io/Jewellery-Website/", github: "https://github.com/FizzaFaisal07", img: "img/jewellary.png" },
+      { title: "Currency Converter", description: "Real-time exchange rate converter using external API.", tech: ["HTML", "CSS", "JavaScript"], link: "https://fizzafaisal07.github.io/currency-converter/", github: "https://github.com/FizzaFaisal07/currency-converter.git", img: "img/currency.png" },
+    ];
+
+    const PROJECTS_PER_PAGE = 3;
+    const totalPages = Math.ceil(projectsData.length / PROJECTS_PER_PAGE);
+
+    const nextProjects = () => {
+      if (currentIndex < totalPages - 1) {
+        setCurrentIndex(currentIndex + 1);
+      }
+    };
+
+    const prevProjects = () => {
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+      }
+    };
+
+    useEffect(() => {
+      setShowLeftArrow(currentIndex > 0);
+      setShowRightArrow(currentIndex < totalPages - 1);
+    }, [currentIndex, totalPages]);
+
+    const getCurrentProjects = () => {
+      const start = currentIndex * PROJECTS_PER_PAGE;
+      const end = start + PROJECTS_PER_PAGE;
+      return projectsData.slice(start, end);
+    };
+
+    return (
+      <section id="projects" className="py-24">
+        <div className="container mx-auto px-6 md:px-10">
+          <FadeUp>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-pink-400 via-purple-600 to-indigo-800 bg-clip-text text-transparent leading-tight pb-4">
+                Featured Projects
+              </h2>
+              <div className="w-20 h-1 bg-gradient-to-r from-pink-500 to-purple-600 mx-auto mt-3 rounded-full"></div>
+              <p className="text-muted text-sm mt-4">
+                Explore my latest work — Web applications · AI tools · Full-stack solutions
+              </p>
+            </div>
+          </FadeUp>
+
+          <div className="relative flex items-center">
+            {showLeftArrow && (
+              <button onClick={prevProjects} className="absolute -left-4 z-20 w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110">
+                <i className="fas fa-chevron-left"></i>
+              </button>
+            )}
+
+            <div className="w-full overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500 ease-in-out" key={currentIndex}>
+                {getCurrentProjects().map((proj, idx) => (
+                  <div key={idx} className="group glass-card rounded-xl overflow-hidden hover:scale-[1.02] transition-all duration-500 animate-fadeIn" style={{ animation: `fadeIn 0.5s ease-in-out ${idx * 0.1}s both` }}>
+                    <div className="h-48 overflow-hidden relative">
+                      <img src={proj.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={proj.title} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-darker via-transparent to-transparent opacity-60"></div>
+                    </div>
+                    <div className="p-5">
+                      <h3 className="text-xl font-display font-bold text-white mb-2 line-clamp-1">{proj.title}</h3>
+                      <p className="text-muted text-sm leading-relaxed line-clamp-2">{proj.description}</p>
+                      <div className="flex flex-wrap gap-2 my-3">
+                        {proj.tech.slice(0, 3).map(t => (
+                          <span key={t} className="text-xs px-2 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">{t}</span>
+                        ))}
+                      </div>
+                      <div className="flex gap-4 mt-3">
+                        <a href={proj.link} target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:text-pink-300 text-sm flex items-center gap-1 transition">
+                          <i className="fas fa-external-link-alt"></i> Demo
+                        </a>
+                        <a href={proj.github} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-pink-400 text-sm flex items-center gap-1 transition">
+                          <i className="fab fa-github"></i> Code
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {showRightArrow && (
+              <button onClick={nextProjects} className="absolute -right-4 z-20 w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110">
+                <i className="fas fa-chevron-right"></i>
+              </button>
+            )}
+          </div>
+
+          <div className="text-center mt-6">
+            <p className="text-xs text-muted">{currentIndex + 1} / {totalPages}</p>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  const Contact = () => {
+    const [form, setForm] = React.useState({ name: '', email: '', message: '', loading: false, sent: false });
+    const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setForm({ ...form, loading: true });
+      
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            message: form.message
+          })
+        });
+        
+        const data = await response.json();
+        window.alert("✅ Message sent successfully!");
+        setForm({ name: '', email: '', message: '', sent: true, loading: false });
+      } catch (error) {
+        window.alert("❌ Error. Please email me directly.");
+        setForm({ ...form, loading: false });
+      }
+      setTimeout(() => setForm(prev => ({ ...prev, sent: false })), 3000);
+    };
+    
+    return (
+      <section id="contact" className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-t from-pink-900/5 to-transparent"></div>
+        <div className="container mx-auto px-6 md:px-10 relative z-10">
+          <FadeUp>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-pink-400 via-purple-600 to-indigo-800 bg-clip-text text-transparent">Let's Connect</h2>
+              <div className="w-16 h-1 bg-gradient-to-r from-pink-500 to-purple-600 mx-auto rounded-full mt-3"></div>
+            </div>
+          </FadeUp>
+          
+          <div className="flex flex-col lg:flex-row gap-12 max-w-5xl mx-auto">
+            <FadeUp delay={100}>
+              <div className="flex-1 space-y-5 text-center lg:text-left">
+                <h3 className="text-2xl font-display font-semibold text-pink-400">Collaborate & Build</h3>
+                <p className="text-muted">Full-stack developer ready for freelance, open source collaborations, or full-time opportunities.</p>
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-center justify-center lg:justify-start">
+                    <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                      <i className="fas fa-envelope text-pink-400"></i>
+                    </div>
+                    <span className="text-sm">fizzafaisal07@gmail.com</span>
+                  </div>
+                  <div className="flex gap-3 items-center justify-center lg:justify-start">
+                    <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                      <i className="fab fa-linkedin text-pink-400"></i>
+                    </div>
+                    <a href="https://www.linkedin.com/in/fizza-faisal-a94182370/" target="_blank" className="text-sm hover:text-pink-400 transition">linkedin.com/in/fizza-faisal</a>
+                  </div>
+                  <div className="flex gap-3 items-center justify-center lg:justify-start">
+                    <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                      <i className="fab fa-github text-pink-400"></i>
+                    </div>
+                    <a href="https://github.com/FizzaFaisal07" target="_blank" className="text-sm hover:text-pink-400 transition">github.com/FizzaFaisal07</a>
+                  </div>
+                </div>
+              </div>
+            </FadeUp>
+            
+            <FadeUp delay={200}>
+              <div className="flex-1 glass-card rounded-2xl p-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <input type="text" name="name" placeholder="Your Name" value={form.name} onChange={handleChange} className="w-full bg-darker/80 border border-pink-500/20 rounded-xl p-3 focus:border-pink-500 focus:outline-none text-white transition" required/>
+                  <input type="email" name="email" placeholder="Email Address" value={form.email} onChange={handleChange} className="w-full bg-darker/80 border border-pink-500/20 rounded-xl p-3 focus:border-pink-500 focus:outline-none text-white transition" required/>
+                  <textarea rows="4" name="message" placeholder="Your Message" value={form.message} onChange={handleChange} className="w-full bg-darker/80 border border-pink-500/20 rounded-xl p-3 focus:border-pink-500 focus:outline-none text-white resize-none transition" required></textarea>
+                  <button type="submit" disabled={form.loading} className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold shadow-lg hover:shadow-pink-500/30 transition-all disabled:opacity-50">
+                    {form.loading ? <i className="fas fa-spinner fa-spin mr-2"></i> : <i className="fas fa-paper-plane mr-2"></i>}
+                    {form.loading ? 'Sending...' : 'Send Message'}
+                  </button>
+                  {form.sent && <p className="text-green-400 text-center text-sm">✓ Message sent! I'll reach out soon.</p>}
+                </form>
+              </div>
+            </FadeUp>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  const Footer = () => (
+    <footer className="border-t border-pink-500/20 py-10 text-center">
+      <div className="flex gap-5 justify-center mb-4">
+        <a href="https://github.com/FizzaFaisal07" className="text-muted hover:text-pink-400 text-xl transition"><i className="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/fizza-faisal-a94182370/" className="text-muted hover:text-pink-400 text-xl transition"><i className="fab fa-linkedin"></i></a>
+        <a href="https://www.instagram.com/fizaayy_.018/" className="text-muted hover:text-pink-400 text-xl transition"><i className="fab fa-instagram"></i></a>
+      </div>
+      <p className="text-muted text-sm">© 2025 Fizza Faisal — Full-Stack Developer</p>
+    </footer>
+  );
+
+  const App = () => {
+    useEffect(() => {
+      const handleSmooth = (e) => {
+        const anchor = e.target.closest('a[href^="#"]');
+        if (anchor && anchor.hash) { 
+          e.preventDefault(); 
+          const target = document.querySelector(anchor.hash); 
+          if (target) { 
+            const offset = 70;
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } 
+        }
+      };
+      document.addEventListener('click', handleSmooth);
+      return () => document.removeEventListener('click', handleSmooth);
+    }, []);
+    return <><Navbar/><Hero/><About/><Skills/><Projects/><Contact/><Footer/></>;
+  };
+  
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
