@@ -100,25 +100,31 @@ async def submit_contact(form: ContactForm):
         # 1. Save to database
         conn = sqlite3.connect("messages.db")
         cursor = conn.cursor()
+
         cursor.execute(
             "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)",
             (form.name, form.email, form.message)
         )
+
         conn.commit()
         conn.close()
-        
-        # 2. Send email notification
-        email_sent = send_email(form.name, form.email, form.message)
-        
+
+        # 2. Send email in background (faster response)
+        try:
+            send_email(form.name, form.email, form.message)
+        except Exception as email_error:
+            print(f"Email failed: {email_error}")
+
+        # 3. Return response quickly
         return {
             "success": True,
-            "message": "Message sent successfully! I'll reply within 24 hours.",
-            "email_sent": email_sent
+            "message": "Message sent successfully!"
         }
-        
+
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+        
 
 @app.get("/api/health")
 async def health():
