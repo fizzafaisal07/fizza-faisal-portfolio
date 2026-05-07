@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 import smtplib
@@ -93,11 +93,9 @@ def send_email(name: str, user_email: str, message: str):
         print(f"Email error: {e}")
         return False
 
-# API Endpoint
 @app.post("/api/contact")
-async def submit_contact(form: ContactForm):
+async def submit_contact(form: ContactForm, background_tasks: BackgroundTasks):
     try:
-        # 1. Save to database
         conn = sqlite3.connect("messages.db")
         cursor = conn.cursor()
 
@@ -109,13 +107,13 @@ async def submit_contact(form: ContactForm):
         conn.commit()
         conn.close()
 
-        # 2. Send email in background (faster response)
-        try:
-            send_email(form.name, form.email, form.message)
-        except Exception as email_error:
-            print(f"Email failed: {email_error}")
+        background_tasks.add_task(
+            send_email,
+            form.name,
+            form.email,
+            form.message
+        )
 
-        # 3. Return response quickly
         return {
             "success": True,
             "message": "Message sent successfully!"
