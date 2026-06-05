@@ -1,0 +1,16 @@
+# environment
+.env
+backend/.env
+
+# python virtual environment
+.venv/
+
+# cache files
+__pycache__/
+*.pyc
+
+# database (optional but recommended if local)
+backend/messages.db
+
+# vscode settings
+.vscode/
