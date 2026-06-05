@@ -83,7 +83,7 @@ University of Engineering & Technology (UET), Lahore
 
 Email: fizzafaisal07@gmail.com
 
-GitHub: https://github.com/FizzaFaisal07
+GitHub: https://github.com/FizzaFaisal07/Fizza-Faisal-Portfolio
 
 LinkedIn: https://www.linkedin.com/in/fizza-faisal-a94182370/
 
